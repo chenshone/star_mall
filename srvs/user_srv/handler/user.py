@@ -105,3 +105,7 @@ class UserServicer(user_pb2_grpc.UserServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details('User not found')
             return empty_pb2.Empty()
+
+    @logger.catch
+    def CheckPassword(self, request, context):
+        return user_pb2.CheckResponse(success=pbkdf2_sha256.verify(request.password, request.encryptedPassword))
