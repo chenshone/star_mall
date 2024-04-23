@@ -14,6 +14,11 @@ sys.path.insert(0, BASE_DIR)
 from user_srv.handler.user import UserServicer
 from user_srv.proto import user_pb2_grpc
 
+# from grpc_health.v1 import health, health_pb2, health_pb2_grpc
+
+from common.grpc_health.v1 import health_pb2_grpc, health_pb2
+from common.grpc_health.v1 import health
+
 
 def on_exit(sig_no, frame):
     logger.info("进程中断")
@@ -29,7 +34,15 @@ def serve():
 
     logger.add("logs/user_srv_{time}.log")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+
+    # 注册用户服务
     user_pb2_grpc.add_UserServicer_to_server(UserServicer(), server)
+
+    # 注册健康检查服务
+    health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(),server)
+    # health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(), server)
+    # configure_health_server(server, "user_srv")
+
     server.add_insecure_port(f"{args.ip}:{args.port}")
 
     # 主进程退出信号监听
