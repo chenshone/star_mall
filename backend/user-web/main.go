@@ -27,6 +27,10 @@ func main() {
 		panic(err)
 	}
 
+	// 初始化srv连接
+	initialize.InitSrvConn()
+
+	// 注册验证器
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("mobile", vd.ValidateMobile)
 		v.RegisterTranslation("mobile", global.Trans, func(ut ut.Translator) error {

@@ -20,9 +20,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 )
 
@@ -79,18 +77,9 @@ func HandleValidatorError(c *gin.Context, err error) {
 }
 
 func GetUserList(ginCtx *gin.Context) {
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.S().Errorw("[GetUserList] 连接 【用户服务失败】", "msg", err.Error())
-		return
-	}
-	defer conn.Close()
-
 	claims, _ := ginCtx.Get("claims")
 
 	zap.S().Infof("访问用户: %d", claims.(*model.CustomClaims).ID)
-
-	client := pb.NewUserClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 
@@ -99,7 +88,7 @@ func GetUserList(ginCtx *gin.Context) {
 	pn, _ := strconv.Atoi(ginCtx.DefaultQuery("pn", "0"))
 	pSize, _ := strconv.Atoi(ginCtx.DefaultQuery("psize", "10"))
 
-	resp, err := client.GetUserList(ctx, &pb.PageInfo{
+	resp, err := global.UserSrvClient.GetUserList(ctx, &pb.PageInfo{
 		Pn:    uint32(pn),
 		PSize: uint32(pSize),
 	})
@@ -141,17 +130,7 @@ func PasswordLogin(ginCtx *gin.Context) {
 		return
 	}
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-
-	if err != nil {
-		zap.S().Errorw("[PasswordLogin] 连接 【用户服务失败】", "msg", err.Error())
-		return
-	}
-	defer conn.Close()
-
-	client := pb.NewUserClient(conn)
-
-	if resp, err := client.GetUserByMobile(context.Background(), &pb.MobileRequest{
+	if resp, err := global.UserSrvClient.GetUserByMobile(context.Background(), &pb.MobileRequest{
 		Mobile: passwordLoginForm.Mobile,
 	}); err != nil {
 		if e, ok := status.FromError(err); ok {
@@ -169,7 +148,7 @@ func PasswordLogin(ginCtx *gin.Context) {
 			return
 		}
 	} else {
-		if checkPasswordResp, checkPasswordErr := client.CheckPassword(context.Background(), &pb.PasswordCheckInfo{
+		if checkPasswordResp, checkPasswordErr := global.UserSrvClient.CheckPassword(context.Background(), &pb.PasswordCheckInfo{
 			Password:          passwordLoginForm.Password,
 			EncryptedPassword: resp.Password,
 		}); checkPasswordErr != nil {
@@ -239,17 +218,7 @@ func Register(ginCtx *gin.Context) {
 		return
 	}
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-
-	if err != nil {
-		zap.S().Errorw("[PasswordLogin] 连接 【用户服务失败】", "msg", err.Error())
-		return
-	}
-	defer conn.Close()
-
-	client := pb.NewUserClient(conn)
-
-	user, err := client.CreateUser(context.Background(), &pb.CreateUserInfo{
+	user, err := global.UserSrvClient.CreateUser(context.Background(), &pb.CreateUserInfo{
 		Mobile:   registerForm.Mobile,
 		Password: registerForm.Password,
 		Nickname: registerForm.Mobile,
