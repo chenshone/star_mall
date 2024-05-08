@@ -1,0 +1,15 @@
+{
+    "name": "user-srv",
+    "tags": ["python","srv"],
+    "mysql": {
+        "db": "star_mall_user_srv",
+        "host": "127.0.0.1",
+        "port": 3366,
+        "user": "root",
+        "password": "123456"
+    },
+    "consul": {
+        "host": "127.0.0.1",
+        "port": "8500"
+    }
+}
