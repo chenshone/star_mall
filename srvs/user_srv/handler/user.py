@@ -56,7 +56,7 @@ class UserServicer(user_pb2_grpc.UserServicer):
 
         except peewee.DoesNotExist as e:
             context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details('User not found')
+            context.set_details("User not found")
             return user_pb2.UserInfoResponse()
 
     @logger.catch
@@ -66,7 +66,7 @@ class UserServicer(user_pb2_grpc.UserServicer):
             return self.convertUser2Resp(user)
         except peewee.DoesNotExist:
             context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details('User not found')
+            context.set_details("User not found")
             return user_pb2.UserInfoResponse()
 
     @logger.catch
@@ -75,7 +75,7 @@ class UserServicer(user_pb2_grpc.UserServicer):
             _ = User.get(User.mobile == request.mobile)
 
             context.set_code(grpc.StatusCode.ALREADY_EXISTS)
-            context.set_details('User already exists')
+            context.set_details("User already exists")
             return user_pb2.UserInfoResponse()
         except peewee.DoesNotExist:
             pass
@@ -103,9 +103,11 @@ class UserServicer(user_pb2_grpc.UserServicer):
             return empty_pb2.Empty()
         except peewee.DoesNotExist:
             context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details('User not found')
+            context.set_details("User not found")
             return empty_pb2.Empty()
 
     @logger.catch
     def CheckPassword(self, request, context):
-        return user_pb2.CheckResponse(success=pbkdf2_sha256.verify(request.password, request.encryptedPassword))
+        return user_pb2.CheckResponse(
+            success=pbkdf2_sha256.verify(request.password, request.encryptedPassword)
+        )

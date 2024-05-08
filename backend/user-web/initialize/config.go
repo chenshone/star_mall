@@ -1,23 +1,27 @@
 package initialize
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"star_mall_api/user-web/global"
 
-	"github.com/fsnotify/fsnotify"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients"
+	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-// func getEnvInfo(env string) bool {
-// 	viper.AutomaticEnv()
-// 	return viper.GetBool(env)
-// }
+func GetEnvInfo(env string) bool {
+	viper.AutomaticEnv()
+	return viper.GetBool(env)
+}
 
 func InitConfig() {
 	// 读取配置文件
-	// debug := getEnvInfo("MALL_DEBUG")
-	debug := true
+	debug := GetEnvInfo("MALL_DEBUG")
 	configFilePrefix := "config"
 	configFileName := fmt.Sprintf("%s-pro.yaml", configFilePrefix)
 
@@ -32,17 +36,53 @@ func InitConfig() {
 		panic(err)
 	}
 
-	if err := v.Unmarshal(global.ServerConfig); err != nil {
+	if err := v.Unmarshal(global.NacosConfig); err != nil {
 		panic(err)
 	}
 
-	zap.S().Infof("配置信息:%v", global.ServerConfig)
+	zap.S().Infof("Nacos配置信息:%v", global.NacosConfig)
 
-	v.WatchConfig()
-	v.OnConfigChange(func(e fsnotify.Event) {
-		zap.S().Infof("配置文件产生变化: %s", e.Name)
-		_ = v.ReadInConfig()
-		_ = v.Unmarshal(global.ServerConfig)
-		zap.S().Infof("配置信息:%v", global.ServerConfig)
+	// 从nacos中读取配置文件
+	sc := []constant.ServerConfig{
+		*constant.NewServerConfig(global.NacosConfig.Host, global.NacosConfig.Port, constant.WithContextPath("/nacos")),
+	}
+
+	currentDir, _ := os.Getwd()
+
+	// 获取上一个目录
+	basePath := filepath.Dir(currentDir)
+
+	cc := *constant.NewClientConfig(
+		constant.WithNamespaceId(global.NacosConfig.Namespace),
+		constant.WithTimeoutMs(5000),
+		constant.WithNotLoadCacheAtStart(true),
+		constant.WithLogDir(basePath+"/temp/nacos/log"),
+		constant.WithCacheDir(basePath+"/temp/nacos/cache"),
+		constant.WithLogLevel("debug"),
+	)
+
+	configClient, err := clients.NewConfigClient(
+		vo.NacosClientParam{
+			ClientConfig:  &cc,
+			ServerConfigs: sc,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	content, err := configClient.GetConfig(vo.ConfigParam{
+		DataId: global.NacosConfig.DataId,
+		Group:  global.NacosConfig.Group,
 	})
+	if err != nil {
+		fmt.Println("111")
+		panic(err)
+	}
+
+	err = json.Unmarshal([]byte(content), &global.ServerConfig)
+	if err != nil {
+		zap.S().Fatalf("读取nacos配置失败: %v", err.Error())
+	}
+	fmt.Println(global.ServerConfig)
 }

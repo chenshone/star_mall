@@ -8,6 +8,7 @@
 5. 手机验证码仅模拟，未接入短信平台，redis作为缓存，保存验证码
 6. 图片验证码选择base64Captcha库
 7. grpc作为rpc框架
+8. 选择grpc-consul-resolver进行服务发现，支持负载均衡
 
 
 ## 生成grpc文件

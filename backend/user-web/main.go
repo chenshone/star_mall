@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"star_mall_api/user-web/global"
 	"star_mall_api/user-web/initialize"
+	"star_mall_api/user-web/util"
 	vd "star_mall_api/user-web/validator"
 
 	"github.com/gin-gonic/gin/binding"
@@ -29,6 +30,14 @@ func main() {
 
 	// 初始化srv连接
 	initialize.InitSrvConn()
+
+	// 本地开发环境端口号固定，线上环境随机端口号
+	if debug := initialize.GetEnvInfo("MALL_DEBUG"); !debug {
+		port, err := util.GetFreePort()
+		if err == nil {
+			global.ServerConfig.Port = port
+		}
+	}
 
 	// 注册验证器
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
