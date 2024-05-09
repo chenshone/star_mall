@@ -14,9 +14,11 @@ from loguru import logger
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR)
 
-from user_srv.settings import settings
-from user_srv.handler.user import UserServicer
-from user_srv.proto import user_pb2_grpc
+from goods_srv.settings import settings
+
+from goods_srv.handler.goods import GoodsServicer
+
+from goods_srv.proto import goods_pb2, goods_pb2_grpc
 
 from grpc_health.v1 import health, health_pb2, health_pb2_grpc
 
@@ -53,11 +55,11 @@ def serve():
     if args.port == 0:
         args.port = get_free_tcp_port()
 
-    logger.add("logs/user_srv_{time}.log")
+    logger.add("logs/goods_srv_{time}.log")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
-    # 注册用户服务
-    user_pb2_grpc.add_UserServicer_to_server(UserServicer(), server)
+    # 注册商品服务
+    goods_pb2_grpc.add_GoodsServicer_to_server(GoodsServicer(), server)
 
     # 注册健康检查服务
     health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(), server)
@@ -73,10 +75,10 @@ def serve():
         lambda sig_no, frame: on_exit(sig_no, frame, service_id=service_id),
     )  # kill
 
-    logger.info(f"user_srv start, listen on {args.ip}:{args.port}")
+    logger.info(f"goods_srv start, listen on {args.ip}:{args.port}")
     server.start()
 
-    logger.info("用户服务 注册开始")
+    logger.info("商品服务 注册开始")
     register = consul.ConsulRegister(settings.CONSUL_HOST, settings.CONSUL_PORT)
 
     if not register.register(
@@ -85,12 +87,11 @@ def serve():
         address=args.ip,
         port=args.port,
         tags=settings.SERVICE_TAGS,
-        check=None,  # 为None的话，会自动生成一个健康检查的配置
     ):
-        logger.error("用户服务 注册失败")
+        logger.error("商品服务 注册失败")
         sys.exit(1)
 
-    logger.info("用户服务 注册成功")
+    logger.info("商品服务 注册成功")
     server.wait_for_termination()
 
 

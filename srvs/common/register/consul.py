@@ -9,7 +9,7 @@ class ConsulRegister(base.Register):
         self.port = port
         self.c = consul.Consul(host=host, port=port)
 
-    def register(self, name, service_id, address, port, tags, check) -> bool:
+    def register(self, name, service_id, address, port, tags, check=None) -> bool:
         if check is None:
             check = {
                 "GRPC": f"{address}:{port}",
