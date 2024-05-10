@@ -12,7 +12,7 @@
 
 ## 生成grpc文件
 ```bash
-python -m grpc_tools.protoc --python_out=. --grpc_python_out=. -I. user.proto
+python -m grpc_tools.protoc --python_out=. --grpc_python_out=. --pyi_out=. -I. user.proto
 ```
 
 ## 项目结构

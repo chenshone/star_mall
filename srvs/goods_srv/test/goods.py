@@ -1,4 +1,5 @@
 import json
+import pprint
 import grpc
 import consul
 
@@ -43,7 +44,7 @@ class GoodsTest:
             print(item.name, item.shopPrice)
 
     def batch_get(self):
-        ids = [421, 422]
+        ids = [1, 2]
         rsp: goods_pb2.GoodsListResponse = self.goods_stub.BatchGetGoods(
             goods_pb2.BatchGoodsIdInfo(id=ids)
         )
@@ -57,13 +58,13 @@ class GoodsTest:
     def category_list(self):
         rsp = self.goods_stub.GetAllCategorysList(empty_pb2.Empty())
         data = json.loads(rsp.jsonData)
-        print(data)
+        pprint.pprint(data)
 
 
 if __name__ == "__main__":
     goods = GoodsTest()
-    goods.goods_list()
+    # goods.goods_list()
 
     # goods.batch_get()
-    # goods.get_detail(421)
-    # goods.category_list()
+    # goods.get_detail(1)
+    goods.category_list()
