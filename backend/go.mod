@@ -13,6 +13,8 @@ require (
 	go.uber.org/zap v1.27.0
 )
 
+require github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible // indirect
+
 require (
 	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
 	github.com/alibabacloud-go/tea v1.1.17 // indirect
@@ -72,6 +74,7 @@ require (
 	github.com/bytedance/sonic v1.11.4 // indirect
 	github.com/cloudwego/base64x v0.1.0 // indirect
 	github.com/cloudwego/iasm v0.1.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1

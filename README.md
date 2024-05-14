@@ -25,3 +25,9 @@ docker run -d -p 8500:8500 -p 8301:8301 -p 8302:8302 -p 8600:8600/udp consul con
 ```bash
 docker run --name nacos-standalone -e MODE=standalone -e JVM_XMS=512m -e JVM_XMX=512m -e JVM_XMN=256m -p 8848:8848 -p 9848:9848 -p 9849:9849 -d nacos/nacos-server:latest
 ```
+
+### 服务调用选择grpc
+
+### 文件服务选择阿里云oss
+采用阿里云oss提供的web前端直传的方式，即前端访问gin获取签名并携带callback，然后前端直传到oss，最后前端访问oss获取文件
+
