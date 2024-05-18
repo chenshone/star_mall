@@ -61,5 +61,5 @@ if __name__ == "__main__":
     inv = InventoryTest()
     # inv.set_inv()
     # inv.get_inv()
-    # inv.sell()
-    inv.reback()
+    inv.sell()
+    # inv.reback()
