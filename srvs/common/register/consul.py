@@ -1,3 +1,5 @@
+import random
+from tkinter import NO
 import requests
 from common.register import base
 import consul
@@ -45,4 +47,13 @@ class ConsulRegister(base.Register):
         params = {
             "filter": filter,
         }
-        resp = requests.get(url=url, params=params)
+        return requests.get(url=url, params=params).json()
+
+    def get_host_port(self, filter):
+        url = f"http://{self.host}:{self.port}/v1/agent/services"
+        params = {"filter": filter}
+        data = requests.get(url=url, params=params).json()
+        if data:
+            service_info = random.choice(list(data.values()))
+            return service_info["Address"], service_info["Port"]
+        return None, None

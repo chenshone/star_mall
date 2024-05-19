@@ -15,11 +15,11 @@ from loguru import logger
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR)
 
-from inventory_srv.settings import settings
+from order_srv.settings import settings
 
-from inventory_srv.handler import inventory
+from order_srv.handler import order
 
-from inventory_srv.proto import inventory_pb2, inventory_pb2_grpc
+from order_srv.proto import order_pb2, order_pb2_grpc
 
 from grpc_health.v1 import health, health_pb2, health_pb2_grpc
 
@@ -56,13 +56,11 @@ def serve():
     if args.port == 0:
         args.port = get_free_tcp_port()
 
-    logger.add("logs/inventory_srv_{time}.log")
+    logger.add("logs/order_srv_{time}.log")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
-    # 注册库存服务
-    inventory_pb2_grpc.add_InventoryServicer_to_server(
-        inventory.InventoryServicer(), server
-    )
+    # 注册订单服务
+    order_pb2_grpc.add_OrderServicer_to_server(order.OrderServicer(), server)
 
     # 注册健康检查服务
     health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(), server)
@@ -78,10 +76,10 @@ def serve():
         lambda sig_no, frame: on_exit(sig_no, frame, service_id=service_id),
     )  # kill
 
-    logger.info(f"inventory_srv start, listen on {args.ip}:{args.port}")
+    logger.info(f"order_srv start, listen on {args.ip}:{args.port}")
     server.start()
 
-    logger.info("库存服务 注册开始")
+    logger.info("订单服务 注册开始")
     register = consul.ConsulRegister(settings.CONSUL_HOST, settings.CONSUL_PORT)
 
     if not register.register(
@@ -91,10 +89,10 @@ def serve():
         port=args.port,
         tags=settings.SERVICE_TAGS,
     ):
-        logger.error("库存服务 注册失败")
+        logger.error("订单服务 注册失败")
         sys.exit(1)
 
-    logger.info("库存服务 注册成功")
+    logger.info("订单服务 注册成功")
     server.wait_for_termination()
 
 
