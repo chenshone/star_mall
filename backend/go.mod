@@ -13,8 +13,6 @@ require (
 	go.uber.org/zap v1.27.0
 )
 
-require github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible // indirect
-
 require (
 	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
 	github.com/alibabacloud-go/tea v1.1.17 // indirect

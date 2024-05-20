@@ -23,7 +23,5 @@ func InitSrvConn() {
 		zap.S().Fatalw("[InitSrvConn] 连接 【商品服务失败】")
 	}
 
-	zap.S().Infow("[InitSrvConn] 连接 【商品服务成功】")
-
 	global.GoodsSrvClient = proto.NewGoodsClient(goodsConn)
 }

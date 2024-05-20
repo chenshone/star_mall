@@ -23,7 +23,5 @@ func InitSrvConn() {
 		zap.S().Fatalw("[InitSrvConn] 连接 【用户服务失败】")
 	}
 
-	zap.S().Infow("[InitSrvConn] 连接 【用户服务成功】")
-
 	global.UserSrvClient = proto.NewUserClient(userConn)
 }

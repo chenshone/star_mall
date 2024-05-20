@@ -91,7 +91,7 @@ class OrderInfo(BaseModel):
     # 用户信息
     address = CharField(max_length=100, default="", verbose_name="收货地址")
     signer_name = CharField(max_length=20, default="", verbose_name="签收人")
-    singer_mobile = CharField(max_length=11, verbose_name="联系电话")
+    signer_mobile = CharField(max_length=11, verbose_name="联系电话")
     post = CharField(max_length=200, default="", verbose_name="留言")
 
 

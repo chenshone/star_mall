@@ -65,7 +65,10 @@ class OrderServicer(order_pb2_grpc.OrderServicer):
     def UpdateCartItem(self, request: order_pb2.CartItemRequest, context):
         # 更新购物车-数量和选中状态
         try:
-            item = ShoppingCart.get(ShoppingCart.id == request.id)
+            item = ShoppingCart.get(
+                ShoppingCart.user == request.userId,
+                ShoppingCart.goods == request.goodsId,
+            )
             item.checked = request.checked
             if request.nums:
                 item.nums = request.nums
@@ -82,7 +85,10 @@ class OrderServicer(order_pb2_grpc.OrderServicer):
     def DeleteCartItem(self, request: order_pb2.CartItemRequest, context):
         # 删除购物车记录
         try:
-            item = ShoppingCart.get(ShoppingCart.id == request.id)
+            item = ShoppingCart.get(
+                ShoppingCart.user == request.userId,
+                ShoppingCart.goods == request.goodsId,
+            )
             item.delete_instance()
 
         except DoesNotExist as e:
@@ -117,7 +123,8 @@ class OrderServicer(order_pb2_grpc.OrderServicer):
             order_resp.total = order.order_mount
             order_resp.address = order.address
             order_resp.name = order.signer_name
-            order_resp.mobile = order.singer_mobile
+            order_resp.mobile = order.signer_mobile
+            order_resp.addTime = order.add_time.strftime("%Y-%m-%d %H:%M:%S")
 
             resp.data.append(order_resp)
 
@@ -129,7 +136,12 @@ class OrderServicer(order_pb2_grpc.OrderServicer):
         resp = order_pb2.OrderInfoDetailResponse()
 
         try:
-            order = OrderInfo.get(OrderInfo.id == request.id)
+            if request.userId:
+                order = OrderInfo.get(
+                    OrderInfo.id == request.id, OrderInfo.user == request.userId
+                )
+            else:
+                order = OrderInfo.get(OrderInfo.id == request.id)
 
             resp.orderInfo.id = order.id
             resp.orderInfo.userId = order.user
@@ -140,7 +152,7 @@ class OrderServicer(order_pb2_grpc.OrderServicer):
             resp.orderInfo.total = order.order_mount
             resp.orderInfo.address = order.address
             resp.orderInfo.name = order.signer_name
-            resp.orderInfo.mobile = order.singer_mobile
+            resp.orderInfo.mobile = order.signer_mobile
 
             order_goods = OrderGoods.select().where(OrderGoods.order == order.id)
             for order_good in order_goods:
