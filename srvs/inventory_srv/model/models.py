@@ -55,13 +55,13 @@ class Inventory(BaseModel):
     freeze = IntegerField(verbose_name="冻结数量", default=0)
 
 
-class InventoryHistory(BaseModel):
-    # 出库历史表
-    order_sn = CharField(verbose_name="订单编号", max_length=20, unique=True)
-    order_inv_detail = CharField(verbose_name="订单详情", max_length=200)
-    status = IntegerField(
-        choices=((1, "已扣减"), (2, "已归还")), default=1, verbose_name="出库状态"
-    )
+# class InventoryHistory(BaseModel):
+#     # 出库历史表
+#     order_sn = CharField(verbose_name="订单编号", max_length=20, unique=True)
+#     order_inv_detail = CharField(verbose_name="订单详情", max_length=200)
+#     status = IntegerField(
+#         choices=((1, "已扣减"), (2, "已归还")), default=1, verbose_name="出库状态"
+#     )
 
 
 if __name__ == "__main__":

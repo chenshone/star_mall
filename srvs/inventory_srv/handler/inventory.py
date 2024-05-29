@@ -98,3 +98,85 @@ class InventoryServicer(inventory_pb2_grpc.InventoryServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("没有库存记录")
             return inventory_pb2.GoodsInvInfo()
+
+    def TrySell(self, request, context):
+        # try尝试扣减库存
+        for item in request.goodsInfo:
+            # 查询库存
+            lock = Lock(
+                settings.REDIS_CLIENT,
+                f"lock:goods_{item.goodsId}",
+                auto_renewal=True,
+                expire=10,
+            )
+            lock.acquire()
+            try:
+                goods_inv = Inventory.get(Inventory.goods == item.goodsId)
+            except DoesNotExist as e:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                return empty_pb2.Empty()
+            if goods_inv.stocks < item.num:
+                # 库存不足
+                context.set_code(grpc.StatusCode.RESOURCE_EXHAUSTED)
+                context.set_details("库存不足")
+                return empty_pb2.Empty()
+            else:
+                goods_inv.freeze += item.num
+                goods_inv.save()
+            lock.release()
+        return empty_pb2.Empty()
+
+    def ConfirmSell(self, request, context):
+        # 确认扣减库存
+        for item in request.goodsInfo:
+            # 查询库存
+            lock = Lock(
+                settings.REDIS_CLIENT,
+                f"lock:goods_{item.goodsId}",
+                auto_renewal=True,
+                expire=10,
+            )
+            lock.acquire()
+            try:
+                goods_inv = Inventory.get(Inventory.goods == item.goodsId)
+            except DoesNotExist as e:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                return empty_pb2.Empty()
+            if goods_inv.stocks < item.num:
+                # 库存不足
+                context.set_code(grpc.StatusCode.RESOURCE_EXHAUSTED)
+                context.set_details("库存不足")
+                return empty_pb2.Empty()
+            else:
+                goods_inv.freeze -= item.num
+                goods_inv.stocks -= item.num
+                goods_inv.save()
+            lock.release()
+        return empty_pb2.Empty()
+
+    def CancelSell(self, request, context):
+        # 取消扣减库存
+        for item in request.goodsInfo:
+            # 查询库存
+            lock = Lock(
+                settings.REDIS_CLIENT,
+                f"lock:goods_{item.goodsId}",
+                auto_renewal=True,
+                expire=10,
+            )
+            lock.acquire()
+            try:
+                goods_inv = Inventory.get(Inventory.goods == item.goodsId)
+            except DoesNotExist as e:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                return empty_pb2.Empty()
+            if goods_inv.stocks < item.num:
+                # 库存不足
+                context.set_code(grpc.StatusCode.RESOURCE_EXHAUSTED)
+                context.set_details("库存不足")
+                return empty_pb2.Empty()
+            else:
+                goods_inv.freeze -= item.num
+                goods_inv.save()
+            lock.release()
+        return empty_pb2.Empty()

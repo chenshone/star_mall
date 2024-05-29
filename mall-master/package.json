@@ -1,7 +1,7 @@
 {
-  "name": "mxshop-admin",
+  "name": "starmall-admin",
   "version": "1.0.0",
-  "description": "慕学生鲜-后台管理系统",
+  "description": "斯达商城-后台管理系统",
   "author": "macro",
   "private": true,
   "scripts": {

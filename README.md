@@ -31,3 +31,9 @@ docker run --name nacos-standalone -e MODE=standalone -e JVM_XMS=512m -e JVM_XMX
 ### 文件服务选择阿里云oss
 采用阿里云oss提供的web前端直传的方式，即前端访问gin获取签名并携带callback，然后前端直传到oss，最后前端访问oss获取文件
 
+### 消息队列选择rocketmq
+> rocketmq选择docker构建
+>
+> 参考：[RocketMQ-Docker](https://github.com/apache/rocketmq-docker)
+
+

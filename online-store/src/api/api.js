@@ -1,14 +1,15 @@
 import axios from 'axios';
 
 
-let host = 'http://shop.projectsedu.com';
-let baseUrl = "http://39.107.30.137:8000"
-let goodsUrl = "http://39.107.30.137:8022"
-let orderUrl = "http://39.107.30.137:8023"
-let userUrl = "http://39.107.30.137:8021"
-let userOpUrl = "http://39.107.30.137:8027"
+// let host = 'http://shop.projectsedu.com';
+let baseUrl = "http://127.0.0.1:8000"
+let goodsUrl = "http://127.0.0.1:8022"
+let orderUrl = "http://127.0.0.1:8023"
+let userUrl = "http://127.0.0.1:8021"
+let userOpUrl = "http://127.0.0.1:8027"
+export const ossUrl = "http://127.0.0.1:8029"
 
-// let host = 'http://127.0.0.1:8000';
+let host = 'http://127.0.0.1:8000';
 
 //获取商品类别信息
 export const queryCategorygoods = params => { return axios.get(`${host}/indexgoods/`) }
@@ -21,8 +22,8 @@ export const bannerGoods = params => { return axios.get(`${goodsUrl}/g/v1/banner
 
 //获取商品类别信息
 export const getCategory = params => {
-  if('id' in params){
-    return axios.get(`${goodsUrl}/g/v1/categorys/`+params.id);
+  if ('id' in params) {
+    return axios.get(`${goodsUrl}/g/v1/categorys/` + params.id);
   }
   else {
     return axios.get(`${goodsUrl}/g/v1/categorys`, params);
@@ -36,7 +37,7 @@ export const getHotSearch = params => { return axios.get(`${host}/hotsearchs`) }
 
 //获取验证码
 export function getCaptcha(params) {
-  return axios.get(userUrl+'/u/v1/base/captcha')
+  return axios.get(userUrl + '/u/v1/base/captcha')
 }
 //获取商品列表
 export const getGoods = params => { return axios.get(`${goodsUrl}/g/v1/goods`, { params: params }) }
@@ -49,20 +50,20 @@ export const getShopCarts = params => { return axios.get(`${orderUrl}/o/v1/shopc
 // 添加商品到购物车
 export const addShopCart = params => { return axios.post(`${orderUrl}/o/v1/shopcarts`, params) }
 //更新购物车商品信息
-export const updateShopCart = (goodsId, params) => { return axios.patch(`${orderUrl}/o/v1/shopcarts/`+goodsId, params) }
+export const updateShopCart = (goodsId, params) => { return axios.patch(`${orderUrl}/o/v1/shopcarts/` + goodsId, params) }
 //删除某个商品的购物记录
-export const deleteShopCart = goodsId => { return axios.delete(`${orderUrl}/o/v1/shopcarts/`+goodsId) }
+export const deleteShopCart = goodsId => { return axios.delete(`${orderUrl}/o/v1/shopcarts/` + goodsId) }
 
 //收藏
 export const addFav = params => { return axios.post(`${userOpUrl}/up/v1/userfavs`, params) }
 
 //取消收藏
-export const delFav = goodsId => { return axios.delete(`${userOpUrl}/up/v1/userfavs/`+goodsId) }
+export const delFav = goodsId => { return axios.delete(`${userOpUrl}/up/v1/userfavs/` + goodsId) }
 
 export const getAllFavs = () => { return axios.get(`${userOpUrl}/up/v1/userfavs`) }
 
 //判断是否收藏getAllFavs
-export const getFav = goodsId => { return axios.get(`${userOpUrl}/up/v1/userfavs/`+goodsId) }
+export const getFav = goodsId => { return axios.get(`${userOpUrl}/up/v1/userfavs/` + goodsId) }
 
 //登录
 export const login = params => {
@@ -87,30 +88,30 @@ export const updateUserInfo = params => { return axios.patch(`${userUrl}/user/1`
 //获取订单
 export const getOrders = () => { return axios.get(`${orderUrl}/o/v1/orders`) }
 //删除订单
-export const delOrder = orderId => { return axios.delete(`${orderUrl}/o/v1/orders/`+orderId) }
+export const delOrder = orderId => { return axios.delete(`${orderUrl}/o/v1/orders/` + orderId) }
 //添加订单
-export const createOrder = params => {return axios.post(`${orderUrl}/o/v1/orders`, params)}
+export const createOrder = params => { return axios.post(`${orderUrl}/o/v1/orders`, params) }
 //获取订单详情
-export const getOrderDetail = orderId => {return axios.get(`${orderUrl}/o/v1/orders/`+orderId)}
+export const getOrderDetail = orderId => { return axios.get(`${orderUrl}/o/v1/orders/` + orderId) }
 
 
 //获取留言
-export const getMessages = () => {return axios.get(`${userOpUrl}/up/v1/messages`)}
+export const getMessages = () => { return axios.get(`${userOpUrl}/up/v1/messages`) }
 
 //添加留言
-export const addMessage = params => {return axios.post(`${userOpUrl}/up/v1/messages/`, params, {headers:{ 'Content-Type': 'multipart/form-data' }})}
+export const addMessage = params => { return axios.post(`${userOpUrl}/up/v1/messages/`, params, { headers: { 'Content-Type': 'multipart/form-data' } }) }
 
 //删除留言
-export const delMessages = messageId => {return axios.delete(`${userOpUrl}/up/v1/messages/`+messageId)}
+export const delMessages = messageId => { return axios.delete(`${userOpUrl}/up/v1/messages/` + messageId) }
 
 //添加收货地址
-export const addAddress = params => {return axios.post(`${userOpUrl}/up/v1/address`, params)}
+export const addAddress = params => { return axios.post(`${userOpUrl}/up/v1/address`, params) }
 
 //删除收货地址
-export const delAddress = addressId => {return axios.delete(`${userOpUrl}/up/v1/address/`+addressId)}
+export const delAddress = addressId => { return axios.delete(`${userOpUrl}/up/v1/address/` + addressId) }
 
 //修改收货地址
-export const updateAddress = (addressId, params) => {return axios.patch(`${userOpUrl}/up/v1/address/`+addressId, params)}
+export const updateAddress = (addressId, params) => { return axios.patch(`${userOpUrl}/up/v1/address/` + addressId, params) }
 
 //获取收货地址
-export const getAddress = () => {return axios.get(`${userOpUrl}/up/v1/address`)}
+export const getAddress = () => { return axios.get(`${userOpUrl}/up/v1/address`) }
