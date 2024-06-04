@@ -40,6 +40,9 @@ def update_cfg(args):
 CONSUL_HOST = data["consul"]["host"]
 CONSUL_PORT = data["consul"]["port"]
 
+ROCKETMQ_HOST = data["rocketmq"]["host"]
+ROCKETMQ_PORT = data["rocketmq"]["port"]
+
 # 服务相关的配置
 SERVICE_NAME = data["name"]
 SERVICE_TAGS = data["tags"]

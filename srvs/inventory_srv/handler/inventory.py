@@ -1,9 +1,11 @@
+import json
 import grpc
 from loguru import logger
-import redis
+from rocketmq.client import ConsumeStatus
+
 from inventory_srv.proto import inventory_pb2, inventory_pb2_grpc
 from google.protobuf import empty_pb2
-from inventory_srv.model.models import Inventory
+from inventory_srv.model.models import Inventory, InventoryHistory
 from inventory_srv.settings import settings
 from common.lock.py_redis_lock import Lock
 
@@ -11,11 +13,45 @@ from common.lock.py_redis_lock import Lock
 from peewee import DoesNotExist
 
 
+def reback_inv(msg):
+    # 通过msg的body中的order_sn来确定库存的归还
+    msg_body_str = msg.body.decode("utf-8")
+    print(f"收到消息:{msg_body_str}")
+    msg_body = json.loads(msg_body_str)
+    order_sn = msg_body["orderSn"]
+
+    # 为什么要用事务来做： 我们查询库存扣减历史记录，并逐个归还商品库存
+    with settings.DB.atomic() as txn:
+        # 为了防止没有扣减库存反而归还库存的情况，这里我们要先查询有没有库存扣减记录
+        try:
+            order_inv = InventoryHistory.get(
+                InventoryHistory.order_sn == order_sn, InventoryHistory.status == 1
+            )
+            inv_details = json.loads(order_inv.order_inv_detail)
+            for item in inv_details:
+                goods_id = item["goods_id"]
+                num = item["num"]
+                Inventory.update(stocks=Inventory.stocks + num).where(
+                    Inventory.goods == goods_id
+                ).execute()
+            order_inv.status = 2
+            order_inv.save()
+            return ConsumeStatus.CONSUME_SUCCESS
+        except DoesNotExist as e:
+            # 表明这个订单没有扣减库存，无需归还，此消息多余
+            return ConsumeStatus.CONSUME_SUCCESS
+        except Exception as e:
+            txn.rollback()
+            return ConsumeStatus.RECONSUME_LATER
+
+
 class InventoryServicer(inventory_pb2_grpc.InventoryServicer):
     @logger.catch
     def Sell(self, request: inventory_pb2.SellInfo, context):
         # 扣减库存
         # 避免超卖问题，需要事务txn
+        inv_history = InventoryHistory(order_sn=request.orderSn)
+        inv_detail = []
         with settings.DB.atomic() as txn:
             for item in request.goodsInfo:
                 lock = Lock(
@@ -40,11 +76,19 @@ class InventoryServicer(inventory_pb2_grpc.InventoryServicer):
                     lock.release()
                     return empty_pb2.Empty()
                 else:
-                    # TODO: 可能会引起数据不一致 - 分布式锁
+                    inv_detail.append(
+                        {
+                            "goods_id": item.goodsId,
+                            "num": item.num,
+                        }
+                    )
+                    # 可能会引起数据不一致 - 分布式锁
                     goods_inv.stocks -= item.num
                     goods_inv.save()
                 lock.release()
 
+        inv_history.order_inv_detail = json.dumps(inv_detail)
+        inv_history.save()
         return empty_pb2.Empty()
 
     @logger.catch

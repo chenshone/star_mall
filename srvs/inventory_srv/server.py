@@ -10,6 +10,7 @@ import uuid
 
 import grpc
 from loguru import logger
+from rocketmq.client import PushConsumer, ConsumeStatus
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -95,7 +96,17 @@ def serve():
         sys.exit(1)
 
     logger.info("库存服务 注册成功")
+
+    # 启动之后还得监听rocketmq对应的topic进行库存归还
+    consumer = PushConsumer("star_mall_inventory")
+    consumer.set_name_server_address(
+        f"{settings.ROCKETMQ_HOST}:{settings.ROCKETMQ_PORT}"
+    )
+    consumer.subscribe("order_reback", inventory.reback_inv)
+    consumer.start()
+
     server.wait_for_termination()
+    consumer.shutdown()
 
 
 if __name__ == "__main__":

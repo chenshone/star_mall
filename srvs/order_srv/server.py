@@ -10,6 +10,7 @@ import uuid
 
 import grpc
 from loguru import logger
+from rocketmq.client import PushConsumer
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -93,7 +94,17 @@ def serve():
         sys.exit(1)
 
     logger.info("订单服务 注册成功")
+
+    # 监听超时订单消息
+    consumer = PushConsumer("star_mall_order")
+    consumer.set_name_server_address(
+        f"{settings.ROCKETMQ_HOST}:{settings.ROCKETMQ_PORT}"
+    )
+    consumer.subscribe("order_timeout", callback=order.order_timeout)
+    consumer.start()
+
     server.wait_for_termination()
+    consumer.shutdown()
 
 
 if __name__ == "__main__":

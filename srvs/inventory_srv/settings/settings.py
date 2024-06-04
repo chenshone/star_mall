@@ -44,8 +44,8 @@ CONSUL_PORT = data["consul"]["port"]
 SERVICE_NAME = data["name"]
 SERVICE_TAGS = data["tags"]
 
-# ROCKETMQ_HOST = data["rocketmq"]["host"]
-# ROCKETMQ_PORT = data["rocketmq"]["port"]
+ROCKETMQ_HOST = data["rocketmq"]["host"]
+ROCKETMQ_PORT = data["rocketmq"]["port"]
 
 REDIS_HOST = data["redis"]["host"]
 REDIS_PORT = data["redis"]["port"]
