@@ -15,6 +15,10 @@ import (
 	"go.uber.org/zap"
 )
 
+type contextKey string
+
+const ginContextKey contextKey = "ginContext"
+
 func List(ctx *gin.Context) {
 	//订单的列表
 	userId, _ := ctx.Get("userId")
@@ -89,7 +93,7 @@ func New(ctx *gin.Context) {
 		api.HandleValidatorError(ctx, err)
 	}
 	userId, _ := ctx.Get("userId")
-	rsp, err := global.OrderSrvClient.CreateOrder(context.Background(), &proto.OrderRequest{
+	rsp, err := global.OrderSrvClient.CreateOrder(context.WithValue(context.Background(), ginContextKey, ctx), &proto.OrderRequest{
 		UserId:  int32(userId.(uint)),
 		Name:    orderForm.Name,
 		Mobile:  orderForm.Mobile,

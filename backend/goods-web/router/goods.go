@@ -10,7 +10,7 @@ import (
 
 func InitGoodsRouter(Router *gin.RouterGroup) {
 	// 商品服务相关路由
-	GoodsRouter := Router.Group("/goods")
+	GoodsRouter := Router.Group("/goods").Use(middleware.Trace())
 	zap.S().Info("配置商品服务相关路由")
 	{
 		GoodsRouter.GET("/", goods.List) // 商品列表

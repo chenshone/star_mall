@@ -12,6 +12,10 @@ import grpc
 from loguru import logger
 from rocketmq.client import PushConsumer
 
+from grpc_opentracing import open_tracing_server_interceptor
+from jaeger_client import Config
+from grpc_opentracing.grpcext import intercept_server
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR)
@@ -46,6 +50,23 @@ def get_free_tcp_port():
 
 
 def serve():
+    config = Config(
+        config={  # usually read from some yaml config
+            "sampler": {
+                "type": "const",  # 全部
+                "param": 1,  # 1 开启全部采样 0 表示关闭全部采样
+            },
+            "local_agent": {
+                "reporting_host": "127.0.0.1",
+                "reporting_port": "6831",
+            },
+            "logging": True,
+        },
+        service_name="order-srv",
+        validate=True,
+    )
+    tracer = config.initialize_tracer()
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--ip", nargs="?", type=str, default="127.0.0.1", help="bind ip"
@@ -59,6 +80,8 @@ def serve():
 
     logger.add("logs/order_srv_{time}.log")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    tracing_interceptor = open_tracing_server_interceptor(tracer)
+    server = intercept_server(server, tracing_interceptor)
 
     # 注册订单服务
     order_pb2_grpc.add_OrderServicer_to_server(order.OrderServicer(), server)

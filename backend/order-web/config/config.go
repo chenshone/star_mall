@@ -10,8 +10,15 @@ type ServerConfig struct {
 	InventorySrvInfo SrvConfig    `mapstructure:"inventory_srv" json:"inventory_srv"`
 	JwtInfo          JwtConfig    `mapstructure:"jwt" json:"jwt"`
 	ConsulInfo       ConsulConfig `mapstructure:"consul" json:"consul"`
+	JaegerInfo       JaegerConfig `mapstructure:"jaeger" json:"jaeger"`
 
 	AliPayInfo AlipayConfig `mapstructure:"alipay" json:"alipay"`
+}
+
+type JaegerConfig struct {
+	Host string `mapstructure:"host" json:"host"`
+	Port int    `mapstructure:"port" json:"port"`
+	Name string `mapstructure:"name" json:"name"`
 }
 
 type AlipayConfig struct {

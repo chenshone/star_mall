@@ -37,3 +37,5 @@ docker run --name nacos-standalone -e MODE=standalone -e JVM_XMS=512m -e JVM_XMX
 > 参考：[RocketMQ-Docker](https://github.com/apache/rocketmq-docker)
 
 
+## 链路追踪选择jaeger
+> docker run --rm --name jaeger -p6831:6831/udp -p16686:16686 jaegertracing/all-in-one:latest

@@ -2,6 +2,7 @@ package router
 
 import (
 	"star_mall_api/goods-web/api/brands"
+	"star_mall_api/goods-web/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,7 +10,7 @@ import (
 // 1. 商品的api接口开发完成
 // 2. 图片的坑
 func InitBrandRouter(Router *gin.RouterGroup) {
-	BrandRouter := Router.Group("brands")
+	BrandRouter := Router.Group("brands").Use(middleware.Trace())
 	{
 		BrandRouter.GET("", brands.BrandList)          // 品牌列表页
 		BrandRouter.DELETE("/:id", brands.DeleteBrand) // 删除品牌
@@ -17,7 +18,7 @@ func InitBrandRouter(Router *gin.RouterGroup) {
 		BrandRouter.PUT("/:id", brands.UpdateBrand)    //修改品牌信息
 	}
 
-	CategoryBrandRouter := Router.Group("categorybrands")
+	CategoryBrandRouter := Router.Group("categorybrands").Use(middleware.Trace())
 	{
 		CategoryBrandRouter.GET("", brands.CategoryBrandList)          // 类别品牌列表页
 		CategoryBrandRouter.DELETE("/:id", brands.DeleteCategoryBrand) // 删除类别品牌
