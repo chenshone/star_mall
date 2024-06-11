@@ -9,8 +9,11 @@ import (
 	"star_mall_api/user-web/api"
 	"strconv"
 
+	"github.com/alibaba/sentinel-golang/core/base"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	sentinel "github.com/alibaba/sentinel-golang/api"
 )
 
 type contextKey string
@@ -67,12 +70,25 @@ func List(ctx *gin.Context) {
 	// 调用grpc服务
 	// parentSpan, _ := ctx.Get("parentSpan")
 	// opentracing.ContextWithSpan(context.Background(), parentSpan.(opentracing.Span))
+
+	// 流量控制
+	e, b := sentinel.Entry("goods-list", sentinel.WithTrafficType(base.Inbound))
+	if b != nil {
+		ctx.JSON(http.StatusTooManyRequests, gin.H{
+			"msg": "请求过于频繁，请稍后重试",
+		})
+		return
+	}
+
 	resp, err := global.GoodsSrvClient.GoodsList(context.WithValue(context.Background(), ginContextKey, ctx), req)
 	if err != nil {
 		zap.S().Errorw("[List] 查询 【商品列表】失败")
 		api.HandleGrpcError2HTTPStatusCode(err, ctx)
 		return
 	}
+
+	// 请求通过，关闭流量控制
+	e.Exit()
 
 	respMap := map[string]interface{}{
 		"total": resp.Total,

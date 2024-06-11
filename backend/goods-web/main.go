@@ -32,6 +32,9 @@ func main() {
 	// 初始化srv连接
 	initialize.InitSrvConn()
 
+	// 初始化sentinel
+	initialize.InitSentinel()
+
 	// 本地开发环境端口号固定，线上环境随机端口号
 	if debug := initialize.GetEnvInfo("MALL_DEBUG"); !debug {
 		port, err := util.GetFreePort()

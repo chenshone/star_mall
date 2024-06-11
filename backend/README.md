@@ -9,6 +9,7 @@
 6. 图片验证码选择base64Captcha库
 7. grpc作为rpc框架
 8. 选择grpc-consul-resolver进行服务发现，支持负载均衡
+9. 流量控制，熔断限流选择sentinel
 
 
 ## 生成grpc文件
@@ -35,3 +36,4 @@ protoc --go_out=. --go_opt=paths=source_relative \
         ├── temp 临时测试
         ├── util 工具
         └── validator 验证器
+

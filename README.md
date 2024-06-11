@@ -39,3 +39,5 @@ docker run --name nacos-standalone -e MODE=standalone -e JVM_XMS=512m -e JVM_XMX
 
 ## 链路追踪选择jaeger
 > docker run --rm --name jaeger -p6831:6831/udp -p16686:16686 jaegertracing/all-in-one:latest
+
+## 流量控制，熔断限流选择sentinel
